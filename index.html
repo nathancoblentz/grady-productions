@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BLACKOUT — Live Event Production</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0B0B0C;
+    --ink-2:#141416;
+    --paper:#F4F2ED;
+    --paper-2:#E9E6DF;
+    --red:#E10600;
+    --red-deep:#9E0400;
+    --muted-dark:#8C8C8F;
+    --muted-light:#6A6862;
+    --line-dark:rgba(255,255,255,.14);
+    --line-light:rgba(11,11,12,.14);
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--ink);
+    color:var(--paper);
+    font-family:'Space Grotesk',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  a{color:inherit;text-decoration:none}
+
+  .mono{font-family:'Space Mono',monospace}
+  .wrap{max-width:1280px;margin:0 auto;padding:0 28px}
+  .display{font-family:'Anton',sans-serif;font-weight:400;line-height:.9;letter-spacing:.5px;text-transform:uppercase}
+
+  /* ---------- GLOBAL OVERLAYS ---------- */
+  .grain{position:fixed;inset:0;z-index:40;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+  .progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--red);z-index:60;box-shadow:0 0 12px var(--red)}
+
+  /* ---------- NAV ---------- */
+  header{
+    position:fixed;top:0;left:0;right:0;z-index:50;
+    background:linear-gradient(to bottom,rgba(11,11,12,.9),rgba(11,11,12,0));
+    backdrop-filter:blur(2px);
+  }
+  .nav{display:flex;align-items:center;justify-content:space-between;height:76px}
+  .brand{display:flex;align-items:center;gap:12px;font-family:'Anton',sans-serif;font-size:24px;letter-spacing:1px}
+  .brand .dot{width:12px;height:12px;background:var(--red);border-radius:50%;box-shadow:0 0 14px var(--red);animation:pulse 2.4s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  .nav-links{display:flex;gap:34px;align-items:center}
+  .nav-links a{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-dark);transition:color .2s}
+  .nav-links a:hover{color:var(--paper)}
+  .nav-cta{border:1px solid var(--red);color:var(--paper);padding:10px 18px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;transition:background .2s,color .2s}
+  .nav-cta:hover{background:var(--red);color:#fff}
+  .burger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:0}
+  .burger span{width:26px;height:2px;background:var(--paper);display:block}
+
+  /* ---------- HERO ---------- */
+  .hero{position:relative;min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding-top:76px}
+  .hero-media{position:absolute;inset:0;z-index:0;overflow:hidden;background:#0B0B0C}
+  .hero-media video,.hero-media img{width:100%;height:100%;object-fit:cover;opacity:.55}
+  .hero-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(95deg,rgba(11,11,12,.94) 8%,rgba(11,11,12,.62) 48%,rgba(11,11,12,.28))}
+  .hero-grid{
+    position:absolute;inset:0;z-index:1;opacity:.35;
+    background-image:linear-gradient(var(--line-dark) 1px,transparent 1px),linear-gradient(90deg,var(--line-dark) 1px,transparent 1px);
+    background-size:64px 64px;
+    mask-image:radial-gradient(ellipse 90% 70% at 50% 40%,#000 30%,transparent 80%);
+  }
+  .hero-spot{position:absolute;inset:0;z-index:1;pointer-events:none;transition:background .12s ease-out;
+    background:radial-gradient(circle 390px at var(--mx,58%) var(--my,45%),transparent 0%,rgba(11,11,12,.12) 42%,rgba(11,11,12,.6) 85%)}
+  .hero-spot::before{content:"";position:absolute;inset:0;
+    background:radial-gradient(circle 230px at var(--mx,58%) var(--my,45%),rgba(225,6,0,.18),transparent 60%);mix-blend-mode:screen}
+  .hero-inner{position:relative;z-index:2}
+  .eyebrow{display:flex;align-items:center;gap:14px;color:var(--red);font-size:12px;letter-spacing:.28em;text-transform:uppercase;margin-bottom:26px}
+  .eyebrow::before{content:"";width:46px;height:1px;background:var(--red)}
+  h1.hero-title{
+    font-size:clamp(52px,11vw,168px);
+    max-width:14ch;
+  }
+  h1.hero-title .red{color:var(--red)}
+  h1.hero-title .line{display:block;overflow:hidden}
+  h1.hero-title .line span{display:block;transform:translateY(110%);animation:riseUp .9s cubic-bezier(.16,1,.3,1) forwards}
+  h1.hero-title .line:nth-child(2) span{animation-delay:.12s}
+  h1.hero-title .line:nth-child(3) span{animation-delay:.24s}
+  @keyframes riseUp{to{transform:translateY(0)}}
+  .hero-sub{margin-top:34px;max-width:52ch;font-size:clamp(16px,2vw,20px);color:#CFCDC7;line-height:1.5}
+  .hero-actions{display:flex;gap:16px;margin-top:40px;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;gap:10px;font-size:14px;letter-spacing:.08em;text-transform:uppercase;padding:16px 28px;transition:transform .15s,background .2s,color .2s}
+  .btn:active{transform:translateY(1px)}
+  .btn-red{background:var(--red);color:#fff}
+  .btn-red:hover{background:#fff;color:var(--ink)}
+  .btn-ghost{border:1px solid var(--line-dark);color:var(--paper)}
+  .btn-ghost:hover{border-color:var(--paper)}
+  .hero-meta{position:absolute;bottom:120px;right:28px;text-align:right;z-index:2;display:none}
+  .hero-meta .mono{font-size:12px;color:var(--muted-dark);letter-spacing:.1em;line-height:1.9}
+
+  /* ---------- MARQUEE ---------- */
+  .marquee{border-top:1px solid var(--line-dark);border-bottom:1px solid var(--line-dark);background:var(--ink-2);overflow:hidden;white-space:nowrap;padding:18px 0}
+  .marquee-track{display:inline-block;animation:scroll 26s linear infinite}
+  .marquee-track span{font-family:'Anton',sans-serif;font-size:26px;text-transform:uppercase;letter-spacing:1px;padding:0 26px;color:var(--paper)}
+  .marquee-track span.red{color:var(--red)}
+  .marquee-track .star{color:var(--muted-dark)}
+  @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  /* ---------- STATS ---------- */
+  .stats{background:var(--paper);color:var(--ink);padding:70px 0}
+  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+  .stat{padding:0 28px;border-left:1px solid var(--line-light)}
+  .stat:first-child{border-left:0;padding-left:0}
+  .stat .num{font-family:'Anton',sans-serif;font-size:clamp(44px,6vw,76px);line-height:1;color:var(--red)}
+  .stat .label{margin-top:12px;font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted-light)}
+
+  /* ---------- SECTION HEAD ---------- */
+  .sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:56px}
+  .sec-tag{color:var(--red);font-size:12px;letter-spacing:.2em;text-transform:uppercase}
+  .sec-title{font-size:clamp(34px,6vw,72px);max-width:16ch}
+
+  /* ---------- CAPABILITIES ---------- */
+  .services{padding:120px 0;background:var(--ink)}
+  .cap-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line-dark);border:1px solid var(--line-dark)}
+  .cap{background:var(--ink);padding:44px 40px;position:relative;transition:background .25s}
+  .cap::before{content:"";position:absolute;left:0;top:0;bottom:0;width:0;background:var(--red);transition:width .25s}
+  .cap:hover{background:var(--ink-2)}
+  .cap:hover::before{width:5px}
+  .cap-name{font-family:'Anton',sans-serif;font-size:clamp(26px,3.2vw,40px);text-transform:uppercase;line-height:1;transition:color .2s}
+  .cap:hover .cap-name{color:var(--red)}
+  .cap-desc{margin-top:14px;font-size:15px;color:#B7B5AF;line-height:1.55;max-width:44ch}
+  @media(max-width:680px){.cap-grid{grid-template-columns:1fr}.cap{padding:34px 26px}}
+
+  /* ---------- WORK ---------- */
+  .work{padding:120px 0;background:var(--paper);color:var(--ink)}
+  .work .sec-tag{color:var(--red)}
+  .work-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:16px}
+  .tile{position:relative;overflow:hidden;background:var(--ink);color:#fff;aspect-ratio:1/1;display:flex;flex-direction:column;justify-content:flex-end;padding:24px;cursor:pointer}
+  .tile.big{grid-column:span 4;aspect-ratio:16/9}
+  .tile.tall{grid-column:span 2;aspect-ratio:auto}
+  .tile.wide{grid-column:span 3;aspect-ratio:16/10}
+  .tile.sq{grid-column:span 3;aspect-ratio:16/10}
+  .tile-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;transition:transform .6s cubic-bezier(.16,1,.3,1)}
+  .tile:hover .tile-bg{transform:scale(1.06)}
+  .tile-grain{position:absolute;inset:0;z-index:1;opacity:.35;mix-blend-mode:overlay;
+    background-image:radial-gradient(rgba(255,255,255,.4) 1px,transparent 1px);background-size:4px 4px}
+  .tile-content{position:relative;z-index:2}
+  .tile .kind{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.7)}
+  .tile .name{font-family:'Anton',sans-serif;font-size:clamp(22px,2.6vw,40px);text-transform:uppercase;line-height:.95;margin-top:6px}
+  .tile .go{position:absolute;top:22px;right:22px;z-index:2;width:40px;height:40px;border:1px solid rgba(255,255,255,.35);border-radius:50%;display:grid;place-items:center;font-size:16px;transition:background .2s,color .2s,border-color .2s}
+  .tile:hover .go{background:var(--red);border-color:var(--red);color:#fff}
+  .bg-fest{background:linear-gradient(135deg,#E10600,#3a0000 70%)}
+  .bg-key{background:linear-gradient(135deg,#141416,#E10600 160%)}
+  .bg-launch{background:linear-gradient(160deg,#0B0B0C,#5a0300)}
+  .bg-arena{background:linear-gradient(45deg,#7a0400,#0B0B0C 60%)}
+  .bg-gala{background:linear-gradient(120deg,#1a1a1d,#000)}
+
+  /* ---------- EVENTS WE DO ---------- */
+  .events{padding:120px 0;background:var(--ink);border-top:1px solid var(--line-dark)}
+  .events .sec-title{color:var(--paper)}
+  .ev-grid{display:grid;grid-template-columns:1fr 1fr;column-gap:60px}
+  .ev-row{display:flex;align-items:baseline;gap:20px;padding:24px 4px;border-top:1px solid var(--line-dark);transition:padding-left .25s}
+  .ev-row:hover{padding-left:14px}
+  .ev-no{font-family:'Space Mono',monospace;font-size:13px;color:var(--red);letter-spacing:.05em;flex:0 0 auto}
+  .ev-name{font-family:'Anton',sans-serif;font-size:clamp(22px,2.6vw,34px);text-transform:uppercase;line-height:1;transition:color .2s}
+  .ev-row:hover .ev-name{color:var(--red)}
+  @media(max-width:680px){.ev-grid{grid-template-columns:1fr}}
+
+  /* ---------- CREW ---------- */
+  .crew{padding:120px 0;background:var(--paper);color:var(--ink)}
+  .crew .sec-tag{color:var(--red)}
+  .crew-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:40px 32px}
+  .member{text-align:center}
+  .member-photo{position:relative;width:100%;max-width:210px;margin:0 auto;aspect-ratio:1/1;border-radius:50%;overflow:hidden;background:var(--paper-2);border:2px solid var(--ink)}
+  .member-photo img{width:100%;height:100%;object-fit:cover;filter:grayscale(100%) contrast(1.05);transition:filter .35s,transform .5s cubic-bezier(.16,1,.3,1)}
+  .member:hover .member-photo img{filter:grayscale(0);transform:scale(1.05)}
+  .member-photo::after{content:"";position:absolute;inset:0;border-radius:50%;box-shadow:inset 0 0 0 0 var(--red);transition:box-shadow .35s}
+  .member:hover .member-photo::after{box-shadow:inset 0 0 0 4px var(--red)}
+  .member-name{font-family:'Anton',sans-serif;font-size:clamp(20px,2.2vw,26px);text-transform:uppercase;line-height:1;margin-top:22px}
+  .member-role{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--red);margin-top:8px}
+  .member-bio{font-size:14px;color:var(--muted-light);line-height:1.55;margin-top:14px;max-width:30ch;margin-left:auto;margin-right:auto}
+  @media(max-width:920px){.crew-grid{grid-template-columns:1fr 1fr;gap:48px 32px}}
+  @media(max-width:520px){.crew-grid{grid-template-columns:1fr}}
+
+  /* ---------- CTA BAND ---------- */
+  .cta{background:var(--red);color:#fff;padding:110px 0;position:relative;overflow:hidden}
+  .cta::after{content:"↗";position:absolute;right:-30px;bottom:-60px;font-size:340px;font-family:'Anton',sans-serif;color:rgba(0,0,0,.12);line-height:1}
+  .cta-inner{position:relative;z-index:2;max-width:22ch}
+  .cta h2{font-family:'Anton',sans-serif;font-size:clamp(40px,8vw,110px);text-transform:uppercase;line-height:.9}
+  .cta p{margin-top:22px;font-size:18px;max-width:44ch;color:rgba(255,255,255,.92)}
+  .cta .btn-red{background:#fff;color:var(--red);margin-top:38px}
+  .cta .btn-red:hover{background:var(--ink);color:#fff}
+
+  /* ---------- FOOTER ---------- */
+  footer{background:var(--ink);padding:0 0 40px;overflow:hidden}
+  .foot-mark{font-family:'Anton',sans-serif;font-size:clamp(80px,20vw,300px);line-height:.8;text-transform:uppercase;text-align:center;white-space:nowrap;padding:60px 0 40px;
+    color:transparent;-webkit-text-stroke:1.5px rgba(255,255,255,.16);letter-spacing:2px;user-select:none}
+  .foot-mark b{-webkit-text-stroke:1.5px var(--red);color:transparent;font-weight:400}
+  footer .wrap{padding-top:20px}
+  .foot-top{display:grid;grid-template-columns:2fr 1fr 1fr 1.4fr;gap:40px;padding-bottom:56px;border-bottom:1px solid var(--line-dark)}
+  .foot-brand{font-family:'Anton',sans-serif;font-size:44px;letter-spacing:1px}
+  .foot-brand span{color:var(--red)}
+  .foot-blurb{margin-top:16px;color:var(--muted-dark);font-size:14px;max-width:36ch;line-height:1.6}
+  .foot-col h4{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-dark);margin-bottom:18px}
+  .foot-col a{display:block;padding:6px 0;font-size:15px;color:#CFCDC7;transition:color .2s}
+  .foot-col a:hover{color:var(--red)}
+  .foot-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:28px;flex-wrap:wrap;gap:16px}
+  .foot-bottom .mono{font-size:12px;color:var(--muted-dark);letter-spacing:.05em}
+
+  /* ---------- REVEAL ---------- */
+  .reveal{opacity:0;transform:translateY(30px);transition:opacity .7s ease,transform .7s cubic-bezier(.16,1,.3,1)}
+  .reveal.in{opacity:1;transform:none}
+
+  /* ---------- RESPONSIVE ---------- */
+  @media(max-width:920px){
+    .stats-grid{grid-template-columns:1fr 1fr;gap:36px 0}
+    .stat{border-left:1px solid var(--line-light);padding-left:24px}
+    .stat:nth-child(odd){border-left:0;padding-left:0}
+    .work-grid{grid-template-columns:1fr 1fr}
+    .tile.big,.tile.tall,.tile.wide,.tile.sq{grid-column:span 2;aspect-ratio:16/10}
+    .foot-top{grid-template-columns:1fr 1fr}
+  }
+  @media(max-width:680px){
+    .nav-links{display:none}
+    .burger{display:flex}
+    .cue{grid-template-columns:56px 1fr;gap:14px}
+    .cue-tc{display:none}
+    .hero-actions .btn{flex:1;justify-content:center}
+    .work-grid{grid-template-columns:1fr}
+    .tile.big,.tile.tall,.tile.wide,.tile.sq{grid-column:span 1}
+    .foot-top{grid-template-columns:1fr}
+  }
+  @media(prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+    h1.hero-title .line span{transform:none}
+    .reveal{opacity:1;transform:none}
+  }
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="grain"></div>
+
+<header>
+  <div class="wrap nav">
+    <a href="#" class="brand">BLACK<span style="color:var(--red)">OUT</span><span class="dot"></span></a>
+    <nav class="nav-links">
+      <a href="#work">Work</a>
+      <a href="#services">Capabilities</a>
+      <a href="#crew">Crew</a>
+      <a href="#contact" class="nav-cta">Start a show</a>
+    </nav>
+    <button class="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-media">
+    <!-- Drop your show reel in as hero.mp4. Until then the poster image shows. -->
+    <video autoplay muted loop playsinline poster="https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&fit=crop&w=1600&q=70">
+      <source src="hero.mp4" type="video/mp4">
+    </video>
+  </div>
+  <div class="hero-overlay"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-spot"></div>
+  <div class="wrap hero-inner">
+    <div class="eyebrow mono">Live Events · Production · Staging</div>
+    <h1 class="hero-title display">
+      <span class="line"><span>We build the</span></span>
+      <span class="line"><span>moment the</span></span>
+      <span class="line"><span class="red">lights drop.</span></span>
+    </h1>
+    <p class="hero-sub">Nobody remembers the load-in. They remember the second the room lost its mind. That second is the whole job, and it's the only thing we build. Staging, sound, light, and the plan that holds it all together.</p>
+    <div class="hero-actions">
+      <a href="#contact" class="btn btn-red">Start a show →</a>
+      <a href="#work" class="btn btn-ghost">See the work</a>
+    </div>
+  </div>
+  <div class="hero-meta">
+    <div class="mono">EST. 2019<br>34 CITIES<br>ZERO DARK ROOMS</div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee">
+  <div class="marquee-track">
+    <span>Festivals</span><span class="star">✦</span><span class="red">Corporate Keynotes</span><span class="star">✦</span><span>Brand Launches</span><span class="star">✦</span><span>Arena Tours</span><span class="star">✦</span><span class="red">Galas</span><span class="star">✦</span>
+    <span>Festivals</span><span class="star">✦</span><span class="red">Corporate Keynotes</span><span class="star">✦</span><span>Brand Launches</span><span class="star">✦</span><span>Arena Tours</span><span class="star">✦</span><span class="red">Galas</span><span class="star">✦</span>
+  </div>
+</div>
+
+<!-- STATS -->
+<section class="stats">
+  <div class="wrap">
+    <div class="stats-grid">
+      <div class="stat reveal"><div class="num">480+</div><div class="label">Shows produced</div></div>
+      <div class="stat reveal"><div class="num">2.1M</div><div class="label">Bodies in rooms</div></div>
+      <div class="stat reveal"><div class="num">34</div><div class="label">Cities run</div></div>
+      <div class="stat reveal"><div class="num">0</div><div class="label">Missed downbeats</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CAPABILITIES -->
+<section class="services" id="services">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <div class="sec-tag mono reveal">Capabilities</div>
+        <h2 class="sec-title display reveal">Everything from the first truss to the final blackout</h2>
+      </div>
+    </div>
+
+    <div class="cap-grid">
+      <div class="cap reveal">
+        <div class="cap-name">Staging &amp; Rigging</div>
+        <div class="cap-desc">Decks, trussing, and structure that holds up under a crowd and a fire marshal. Built fast, struck faster.</div>
+      </div>
+      <div class="cap reveal">
+        <div class="cap-name">Audio</div>
+        <div class="cap-desc">Line arrays tuned to the room, not the spec sheet. The back row hears what the front row feels.</div>
+      </div>
+      <div class="cap reveal">
+        <div class="cap-name">Lighting &amp; LED</div>
+        <div class="cap-desc">Programming that lands on the beat. Walls of pixels, moving heads, and the one dark moment that makes the drop hit.</div>
+      </div>
+      <div class="cap reveal">
+        <div class="cap-name">Show Design</div>
+        <div class="cap-desc">The arc of the night on paper before it's ever on stage. We design the feeling, then reverse-engineer the gear.</div>
+      </div>
+      <div class="cap reveal">
+        <div class="cap-name">Production Management</div>
+        <div class="cap-desc">Advances, timelines, crew, permits, and the person who answers the phone at 3am when the truck's late.</div>
+      </div>
+      <div class="cap reveal">
+        <div class="cap-name">Full Send</div>
+        <div class="cap-desc">Hand us the date and the vision. We hand you back a room full of people who won't shut up about it.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WORK -->
+<section class="work" id="work">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <div class="sec-tag mono reveal">Selected work</div>
+        <h2 class="sec-title display reveal" style="color:var(--ink)">Rooms we made loud</h2>
+      </div>
+      <a href="#" class="mono reveal" style="color:var(--red);font-size:14px;letter-spacing:.1em;">FULL REEL →</a>
+    </div>
+
+    <div class="work-grid">
+      <div class="tile big reveal">
+        <img class="tile-bg" src="work-nightshift.jpg" alt="Nightshift festival main stage" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&fit=crop&w=1400&q=70'">
+        <div class="tile-grain"></div>
+        <div class="go">↗</div>
+        <div class="tile-content"><div class="kind">Music Festival · 3 Stages</div><div class="name">Nightshift '25</div></div>
+      </div>
+      <div class="tile tall reveal">
+        <img class="tile-bg" src="work-vertex.jpg" alt="Vertex Summit corporate keynote stage" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=900&q=70'">
+        <div class="tile-grain"></div>
+        <div class="go">↗</div>
+        <div class="tile-content"><div class="kind">Corporate Keynote</div><div class="name">Vertex Summit</div></div>
+      </div>
+      <div class="tile wide reveal">
+        <img class="tile-bg" src="work-redline.jpg" alt="Redline brand launch stage lighting" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=1100&q=70'">
+        <div class="tile-grain"></div>
+        <div class="go">↗</div>
+        <div class="tile-content"><div class="kind">Brand Launch</div><div class="name">Redline Drop</div></div>
+      </div>
+      <div class="tile sq reveal">
+        <img class="tile-bg" src="work-staticroads.jpg" alt="Static Roads arena tour crowd" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=1100&q=70'">
+        <div class="tile-grain"></div>
+        <div class="go">↗</div>
+        <div class="tile-content"><div class="kind">Arena Tour · 11 Dates</div><div class="name">Static Roads</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EVENTS WE DO -->
+<section class="events">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <div class="sec-tag mono reveal">What we throw</div>
+        <h2 class="sec-title display reveal">If people show up for it, we can run it</h2>
+      </div>
+      <div class="mono reveal" style="color:var(--muted-dark);font-size:13px;">08 FORMATS / MORE ON REQUEST</div>
+    </div>
+    <div class="ev-grid">
+      <div class="ev-row reveal"><span class="ev-no">01</span><span class="ev-name">Corporate &amp; Conferences</span></div>
+      <div class="ev-row reveal"><span class="ev-no">02</span><span class="ev-name">Weddings</span></div>
+      <div class="ev-row reveal"><span class="ev-no">03</span><span class="ev-name">Concerts &amp; Live Music</span></div>
+      <div class="ev-row reveal"><span class="ev-no">04</span><span class="ev-name">Festivals</span></div>
+      <div class="ev-row reveal"><span class="ev-no">05</span><span class="ev-name">Schools &amp; Assemblies</span></div>
+      <div class="ev-row reveal"><span class="ev-no">06</span><span class="ev-name">Galas &amp; Fundraisers</span></div>
+      <div class="ev-row reveal"><span class="ev-no">07</span><span class="ev-name">Brand &amp; Product Launches</span></div>
+      <div class="ev-row reveal"><span class="ev-no">08</span><span class="ev-name">Private Parties</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- CREW -->
+<section class="crew" id="crew">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <div class="sec-tag mono reveal">The crew</div>
+        <h2 class="sec-title display reveal" style="color:var(--ink)">The people in the dark</h2>
+      </div>
+    </div>
+
+    <div class="crew-grid">
+      <div class="member reveal">
+        <div class="member-photo">
+          <img src="crew-ryan.jpg" alt="Ryan Grady" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=420&q=70'">
+        </div>
+        <div class="member-name">Ryan Grady</div>
+        <div class="member-role">CEO &amp; Marketing Director</div>
+        <div class="member-bio">Runs the business end and keeps the phones ringing. Sold the first show out of a garage and never looked back.</div>
+      </div>
+
+      <div class="member reveal">
+        <div class="member-photo">
+          <img src="crew-vince.jpg" alt="Vince Morse" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=420&q=70'">
+        </div>
+        <div class="member-name">Vince Morse</div>
+        <div class="member-role">Event Captain &amp; Chief Audio Engineer</div>
+        <div class="member-bio">The one at the console when it counts. Twenty years behind the desk and still tunes every room by ear.</div>
+      </div>
+
+      <div class="member reveal">
+        <div class="member-photo">
+          <img src="crew-nikki.jpg" alt="Nikki Parker" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=420&q=70'">
+        </div>
+        <div class="member-name">Nikki Parker</div>
+        <div class="member-role">AV Tech Lead</div>
+        <div class="member-bio">Cables, screens, and signal flow that never drops. If it plugs in, she's already got a backup for it.</div>
+      </div>
+
+      <div class="member reveal">
+        <div class="member-photo">
+          <img src="crew-jonathan.jpg" alt="Jonathan Coblentz" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=420&q=70'">
+        </div>
+        <div class="member-name">Jonathan Coblentz</div>
+        <div class="member-role">Chief Technical Officer</div>
+        <div class="member-bio">Builds the systems that run the shows behind the shows. Keeps the whole operation wired and online.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta" id="contact">
+  <div class="wrap cta-inner">
+    <h2>Got a date and a room?</h2>
+    <p>Tell us what you're throwing. We'll tell you what it takes to make it unforgettable, and then we'll go build it.</p>
+    <a href="mailto:hello@blackout.co" class="btn btn-red">Book a walkthrough →</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer id="about">
+  <div class="foot-mark">BLACK<b>OUT</b></div>
+  <div class="wrap">
+    <div class="foot-top">
+      <div>
+        <div class="foot-brand">BLACK<span>OUT</span></div>
+        <p class="foot-blurb">Live event production for people who care what the room feels like at 11:47pm. Staging, audio, lighting, and the plan behind all of it.</p>
+      </div>
+      <div class="foot-col">
+        <h4>Site</h4>
+        <a href="#work">Work</a>
+        <a href="#services">Capabilities</a>
+        <a href="#about">Crew</a>
+        <a href="#contact">Contact</a>
+      </div>
+      <div class="foot-col">
+        <h4>Social</h4>
+        <a href="#">Instagram</a>
+        <a href="#">YouTube</a>
+        <a href="#">LinkedIn</a>
+        <a href="#">TikTok</a>
+      </div>
+      <div class="foot-col">
+        <h4>Booking</h4>
+        <a href="mailto:hello@blackout.co">hello@blackout.co</a>
+        <a href="tel:+18645550100">+1 864 555 0100</a>
+        <a href="#">Download tech rider</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <div class="mono">© 2026 BLACKOUT PRODUCTION CO. ALL RIGHTS RESERVED.</div>
+      <div class="mono">MADE IN THE DARK ✦ RUN IN THE LIGHT</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // scroll reveal
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+  },{threshold:.15});
+  document.querySelectorAll('.reveal').forEach((el,i)=>{
+    el.style.transitionDelay=(i%4*0.06)+'s';
+    io.observe(el);
+  });
+
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // followspot — tracks the cursor across the hero like a followspot operator
+  const hero = document.querySelector('.hero');
+  const spot = document.querySelector('.hero-spot');
+  if(hero && spot && !reduce && window.matchMedia('(pointer:fine)').matches){
+    hero.addEventListener('pointermove', e=>{
+      const r = hero.getBoundingClientRect();
+      spot.style.setProperty('--mx', ((e.clientX - r.left)/r.width*100)+'%');
+      spot.style.setProperty('--my', ((e.clientY - r.top)/r.height*100)+'%');
+    });
+  }
+
+  // scroll progress rail
+  const bar = document.getElementById('progress');
+  const onScroll = ()=>{
+    const h = document.documentElement;
+    const max = h.scrollHeight - h.clientHeight;
+    bar.style.width = (max>0 ? (h.scrollTop/max*100) : 0) + '%';
+  };
+  onScroll();
+  window.addEventListener('scroll', onScroll, {passive:true});
+</script>
+</body>
+</html>
