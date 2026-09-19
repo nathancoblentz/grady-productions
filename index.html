@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- PROTOTYPE: remove the next line to let search engines index the site -->
+<meta name="robots" content="noindex">
 <title>BLACKOUT — Live Event Production</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,7 +24,7 @@
   }
 
   *{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-behavior:smooth}
+  html{scroll-behavior:smooth;scroll-padding-top:84px}
   body{
     background:var(--ink);
     color:var(--paper);
@@ -56,8 +58,11 @@
   .nav-links a:hover{color:var(--paper)}
   .nav-cta{border:1px solid var(--red);color:var(--paper);padding:10px 18px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;transition:background .2s,color .2s}
   .nav-cta:hover{background:var(--red);color:#fff}
-  .burger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:0}
-  .burger span{width:26px;height:2px;background:var(--paper);display:block}
+  .burger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:0;padding:4px;z-index:60}
+  .burger span{width:26px;height:2px;background:var(--paper);display:block;transition:transform .3s ease,opacity .2s ease}
+  header.nav-open .burger span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+  header.nav-open .burger span:nth-child(2){opacity:0}
+  header.nav-open .burger span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
 
   /* ---------- HERO ---------- */
   .hero{position:relative;min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding-top:76px}
@@ -99,9 +104,10 @@
   .hero-meta .mono{font-size:12px;color:var(--muted-dark);letter-spacing:.1em;line-height:1.9}
 
   /* ---------- MARQUEE ---------- */
-  .marquee{border-top:1px solid var(--line-dark);border-bottom:1px solid var(--line-dark);background:var(--ink-2);overflow:hidden;white-space:nowrap;padding:18px 0}
+  .marquee{border-top:1px solid var(--line-dark);border-bottom:1px solid var(--line-dark);background:var(--ink-2);overflow:hidden;white-space:nowrap;padding:clamp(12px,3vw,18px) 0}
   .marquee-track{display:inline-block;animation:scroll 26s linear infinite}
-  .marquee-track span{font-family:'Anton',sans-serif;font-size:26px;text-transform:uppercase;letter-spacing:1px;padding:0 26px;color:var(--paper)}
+  .marquee-set{display:inline}
+  .marquee-track span{font-family:'Anton',sans-serif;font-size:clamp(15px,4.6vw,26px);text-transform:uppercase;letter-spacing:1px;padding:0 clamp(12px,3.5vw,26px);color:var(--paper)}
   .marquee-track span.red{color:var(--red)}
   .marquee-track .star{color:var(--muted-dark)}
   @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
@@ -183,13 +189,30 @@
   @media(max-width:520px){.crew-grid{grid-template-columns:1fr}}
 
   /* ---------- CTA BAND ---------- */
-  .cta{background:var(--red);color:#fff;padding:110px 0;position:relative;overflow:hidden}
-  .cta::after{content:"↗";position:absolute;right:-30px;bottom:-60px;font-size:340px;font-family:'Anton',sans-serif;color:rgba(0,0,0,.12);line-height:1}
-  .cta-inner{position:relative;z-index:2;max-width:22ch}
-  .cta h2{font-family:'Anton',sans-serif;font-size:clamp(40px,8vw,110px);text-transform:uppercase;line-height:.9}
-  .cta p{margin-top:22px;font-size:18px;max-width:44ch;color:rgba(255,255,255,.92)}
-  .cta .btn-red{background:#fff;color:var(--red);margin-top:38px}
-  .cta .btn-red:hover{background:var(--ink);color:#fff}
+  .cta{background:var(--red);color:#fff;padding:clamp(64px,10vw,110px) 0;position:relative;overflow:hidden}
+  .cta-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+  .cta-copy h2{font-family:'Anton',sans-serif;font-size:clamp(40px,7vw,92px);text-transform:uppercase;line-height:.9}
+  .cta-copy p{margin-top:22px;font-size:18px;max-width:40ch;color:rgba(255,255,255,.92);line-height:1.5}
+  .cta-copy .direct{margin-top:28px;font-family:'Space Mono',monospace;font-size:13px;letter-spacing:.04em;color:rgba(255,255,255,.85)}
+  .cta-copy .direct a{border-bottom:1px solid rgba(255,255,255,.5)}
+  .cta-copy .direct a:hover{border-color:#fff}
+  /* form card */
+  .form-card{background:var(--ink);padding:clamp(28px,4vw,40px);border:1px solid rgba(0,0,0,.25)}
+  .form-card .form-head{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--red);margin-bottom:24px}
+  .field{margin-bottom:18px}
+  .field label{display:block;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-dark);margin-bottom:8px}
+  .field input,.field select,.field textarea{width:100%;background:#1C1C1F;border:1px solid rgba(255,255,255,.14);color:var(--paper);
+    font-family:'Space Grotesk',sans-serif;font-size:15px;padding:13px 14px;border-radius:0;transition:border-color .2s,background .2s;-webkit-appearance:none;appearance:none}
+  .field input::placeholder,.field textarea::placeholder{color:#6C6C70}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--red);background:#232327}
+  .field textarea{resize:vertical;min-height:96px}
+  .field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23E10600' stroke-width='2' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:38px}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .form-card .btn-red{background:var(--red);color:#fff;width:100%;justify-content:center;margin-top:6px;border:0;cursor:pointer;font-family:'Space Grotesk',sans-serif}
+  .form-card .btn-red:hover{background:#fff;color:var(--ink)}
+  .form-note{margin-top:14px;font-size:12px;color:var(--muted-dark);line-height:1.5}
+  @media(max-width:860px){.cta-grid{grid-template-columns:1fr;gap:40px}}
+  @media(max-width:420px){.field-row{grid-template-columns:1fr;gap:0}}
 
   /* ---------- FOOTER ---------- */
   footer{background:var(--ink);padding:0 0 40px;overflow:hidden}
@@ -221,8 +244,20 @@
     .foot-top{grid-template-columns:1fr 1fr}
   }
   @media(max-width:680px){
-    .nav-links{display:none}
     .burger{display:flex}
+    .nav-links{
+      position:fixed;top:76px;left:0;right:0;
+      flex-direction:column;align-items:stretch;gap:0;
+      background:var(--ink);border-top:1px solid var(--line-dark);
+      padding:8px 28px 28px;
+      box-shadow:0 24px 40px rgba(0,0,0,.55);
+      opacity:0;transform:translateY(-12px);pointer-events:none;
+      transition:opacity .28s ease,transform .28s cubic-bezier(.16,1,.3,1);
+    }
+    header.nav-open .nav-links{opacity:1;transform:none;pointer-events:auto}
+    .nav-links a{width:100%;padding:18px 0;font-size:18px;color:var(--paper);border-bottom:1px solid var(--line-dark)}
+    .nav-links a.nav-cta{border:1px solid var(--red);text-align:center;margin-top:18px;padding:16px;font-size:14px}
+    .nav-links a.nav-cta:hover{background:var(--red)}
     .cue{grid-template-columns:56px 1fr;gap:14px}
     .cue-tc{display:none}
     .hero-actions .btn{flex:1;justify-content:center}
@@ -234,6 +269,11 @@
     *{animation:none!important;transition:none!important}
     h1.hero-title .line span{transform:none}
     .reveal{opacity:1;transform:none}
+    /* marquee can't scroll, so wrap it into a tidy centered block instead of a frozen overflow */
+    .marquee{white-space:normal}
+    .marquee-track{display:flex;flex-wrap:wrap;justify-content:center;align-items:center}
+    .marquee-set{display:flex;flex-wrap:wrap;justify-content:center;align-items:center}
+    .marquee-set[aria-hidden="true"]{display:none}
   }
 </style>
 </head>
@@ -243,19 +283,19 @@
 
 <header>
   <div class="wrap nav">
-    <a href="#" class="brand">BLACK<span style="color:var(--red)">OUT</span><span class="dot"></span></a>
-    <nav class="nav-links">
+    <a href="#top" class="brand">BLACK<span style="color:var(--red)">OUT</span><span class="dot"></span></a>
+    <nav class="nav-links" id="primary-nav">
       <a href="#work">Work</a>
       <a href="#services">Capabilities</a>
       <a href="#crew">Crew</a>
       <a href="#contact" class="nav-cta">Start a show</a>
     </nav>
-    <button class="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+    <button type="button" class="burger" aria-label="Menu" aria-expanded="false" aria-controls="primary-nav"><span></span><span></span><span></span></button>
   </div>
 </header>
 
 <!-- HERO -->
-<section class="hero">
+<section class="hero" id="top">
   <div class="hero-media">
     <!-- Drop your show reel in as hero.mp4. Until then the poster image shows. -->
     <video autoplay muted loop playsinline poster="https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&fit=crop&w=1600&q=70">
@@ -286,8 +326,7 @@
 <!-- MARQUEE -->
 <div class="marquee">
   <div class="marquee-track">
-    <span>Festivals</span><span class="star">✦</span><span class="red">Corporate Keynotes</span><span class="star">✦</span><span>Brand Launches</span><span class="star">✦</span><span>Arena Tours</span><span class="star">✦</span><span class="red">Galas</span><span class="star">✦</span>
-    <span>Festivals</span><span class="star">✦</span><span class="red">Corporate Keynotes</span><span class="star">✦</span><span>Brand Launches</span><span class="star">✦</span><span>Arena Tours</span><span class="star">✦</span><span class="red">Galas</span><span class="star">✦</span>
+    <span class="marquee-set"><span>Festivals</span><span class="star">✦</span><span class="red">Corporate Keynotes</span><span class="star">✦</span><span>Brand Launches</span><span class="star">✦</span><span>Arena Tours</span><span class="star">✦</span><span class="red">Galas</span><span class="star">✦</span></span><span class="marquee-set" aria-hidden="true"><span>Festivals</span><span class="star">✦</span><span class="red">Corporate Keynotes</span><span class="star">✦</span><span>Brand Launches</span><span class="star">✦</span><span>Arena Tours</span><span class="star">✦</span><span class="red">Galas</span><span class="star">✦</span></span>
   </div>
 </div>
 
@@ -350,7 +389,7 @@
         <div class="sec-tag mono reveal">Selected work</div>
         <h2 class="sec-title display reveal" style="color:var(--ink)">Rooms we made loud</h2>
       </div>
-      <a href="#" class="mono reveal" style="color:var(--red);font-size:14px;letter-spacing:.1em;">FULL REEL →</a>
+      <a href="#work" class="mono reveal" style="color:var(--red);font-size:14px;letter-spacing:.1em;">FULL REEL →</a>
     </div>
 
     <div class="work-grid">
@@ -457,10 +496,69 @@
 
 <!-- CTA -->
 <section class="cta" id="contact">
-  <div class="wrap cta-inner">
-    <h2>Got a date and a room?</h2>
-    <p>Tell us what you're throwing. We'll tell you what it takes to make it unforgettable, and then we'll go build it.</p>
-    <a href="mailto:hello@blackout.co" class="btn btn-red">Book a walkthrough →</a>
+  <div class="wrap cta-grid">
+    <div class="cta-copy">
+      <h2>Got a date and a room?</h2>
+      <p>Tell us what you're throwing. We'll tell you what it takes to make it unforgettable, and then we'll go build it.</p>
+      <p class="direct">Rather just talk? <a href="mailto:hello@blackout.co">hello@blackout.co</a> · <a href="tel:+18645550100">+1 864 555 0100</a></p>
+    </div>
+
+    <!-- Static-host form. Swap the action URL for your own Formspree/FormSubmit endpoint to receive submissions. See note below the form. -->
+    <form class="form-card" action="https://formspree.io/f/your-form-id" method="POST">
+      <div class="form-head">Start a show</div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="f-name">Name</label>
+          <input id="f-name" name="name" type="text" placeholder="Jane Doe" required>
+        </div>
+        <div class="field">
+          <label for="f-org">Company / Org</label>
+          <input id="f-org" name="organization" type="text" placeholder="Optional">
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="f-email">Email</label>
+          <input id="f-email" name="email" type="email" placeholder="you@email.com" required>
+        </div>
+        <div class="field">
+          <label for="f-phone">Phone</label>
+          <input id="f-phone" name="phone" type="tel" placeholder="Optional">
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="f-type">Event type</label>
+          <select id="f-type" name="event_type" required>
+            <option value="" selected disabled>Choose one</option>
+            <option>Corporate / Conference</option>
+            <option>Wedding</option>
+            <option>Concert / Live Music</option>
+            <option>Festival</option>
+            <option>School / Assembly</option>
+            <option>Gala / Fundraiser</option>
+            <option>Brand / Product Launch</option>
+            <option>Private Party</option>
+            <option>Something else</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="f-date">Event date</label>
+          <input id="f-date" name="event_date" type="date">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="f-msg">What are you throwing?</label>
+        <textarea id="f-msg" name="details" placeholder="Venue, headcount, vibe, budget range — whatever you've got." required></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-red">Send it →</button>
+      <p class="form-note">We reply within one business day. No spam, no sales list.</p>
+    </form>
   </div>
 </section>
 
@@ -477,21 +575,21 @@
         <h4>Site</h4>
         <a href="#work">Work</a>
         <a href="#services">Capabilities</a>
-        <a href="#about">Crew</a>
+        <a href="#crew">Crew</a>
         <a href="#contact">Contact</a>
       </div>
       <div class="foot-col">
         <h4>Social</h4>
-        <a href="#">Instagram</a>
-        <a href="#">YouTube</a>
-        <a href="#">LinkedIn</a>
-        <a href="#">TikTok</a>
+        <a href="https://instagram.com/" target="_blank" rel="noopener noreferrer">Instagram</a>
+        <a href="https://youtube.com/" target="_blank" rel="noopener noreferrer">YouTube</a>
+        <a href="https://linkedin.com/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        <a href="https://tiktok.com/" target="_blank" rel="noopener noreferrer">TikTok</a>
       </div>
       <div class="foot-col">
         <h4>Booking</h4>
         <a href="mailto:hello@blackout.co">hello@blackout.co</a>
         <a href="tel:+18645550100">+1 864 555 0100</a>
-        <a href="#">Download tech rider</a>
+        <a href="mailto:hello@blackout.co?subject=Tech%20rider%20request">Request tech rider</a>
       </div>
     </div>
     <div class="foot-bottom">
@@ -533,6 +631,18 @@
   };
   onScroll();
   window.addEventListener('scroll', onScroll, {passive:true});
+
+  // mobile menu
+  const header = document.querySelector('header');
+  const burger = document.querySelector('.burger');
+  const navLinks = document.getElementById('primary-nav');
+  const setMenu = (open)=>{
+    header.classList.toggle('nav-open', open);
+    burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+  };
+  burger.addEventListener('click', ()=> setMenu(!header.classList.contains('nav-open')) );
+  navLinks.querySelectorAll('a').forEach(a=> a.addEventListener('click', ()=> setMenu(false)) );
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') setMenu(false); });
 </script>
 </body>
 </html>
