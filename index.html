@@ -5,7 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!-- PROTOTYPE: remove the next line to let search engines index the site -->
 <meta name="robots" content="noindex">
-<title>BLACKOUT — Live Event Production</title>
+<title>RGP Live Sound &amp; Production</title>
+<meta name="description" content="RGP Live Sound &amp; Production. Live sound, staging, and lighting for concerts, school events, and corporate functions.">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -15,7 +18,7 @@
     --ink-2:#141416;
     --paper:#F4F2ED;
     --paper-2:#E9E6DF;
-    --red:#E10600;
+    --red:#DD1724;
     --red-deep:#9E0400;
     --muted-dark:#8C8C8F;
     --muted-light:#6A6862;
@@ -50,7 +53,8 @@
     backdrop-filter:blur(2px);
   }
   .nav{display:flex;align-items:center;justify-content:space-between;height:76px}
-  .brand{display:flex;align-items:center;gap:12px;font-family:'Anton',sans-serif;font-size:24px;letter-spacing:1px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand img{height:40px;width:auto;display:block}
   .brand .dot{width:12px;height:12px;background:var(--red);border-radius:50%;box-shadow:0 0 14px var(--red);animation:pulse 2.4s infinite}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
   .nav-links{display:flex;gap:34px;align-items:center}
@@ -221,8 +225,7 @@
   .foot-mark b{-webkit-text-stroke:1.5px var(--red);color:transparent;font-weight:400}
   footer .wrap{padding-top:20px}
   .foot-top{display:grid;grid-template-columns:2fr 1fr 1fr 1.4fr;gap:40px;padding-bottom:56px;border-bottom:1px solid var(--line-dark)}
-  .foot-brand{font-family:'Anton',sans-serif;font-size:44px;letter-spacing:1px}
-  .foot-brand span{color:var(--red)}
+  .foot-logo{display:block;width:280px;max-width:100%;height:auto}
   .foot-blurb{margin-top:16px;color:var(--muted-dark);font-size:14px;max-width:36ch;line-height:1.6}
   .foot-col h4{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-dark);margin-bottom:18px}
   .foot-col a{display:block;padding:6px 0;font-size:15px;color:#CFCDC7;transition:color .2s}
@@ -283,7 +286,7 @@
 
 <header>
   <div class="wrap nav">
-    <a href="#top" class="brand">BLACK<span style="color:var(--red)">OUT</span><span class="dot"></span></a>
+    <a href="#top" class="brand" aria-label="RGP Live Sound &amp; Production, back to top"><img src="logo-mark.png" alt="RGP" width="130" height="40"></a>
     <nav class="nav-links" id="primary-nav">
       <a href="#work">Work</a>
       <a href="#services">Capabilities</a>
@@ -564,11 +567,11 @@
 
 <!-- FOOTER -->
 <footer id="about">
-  <div class="foot-mark">BLACK<b>OUT</b></div>
+  <div class="foot-mark" aria-hidden="true">RG<b>P</b></div>
   <div class="wrap">
     <div class="foot-top">
       <div>
-        <div class="foot-brand">BLACK<span>OUT</span></div>
+        <img class="foot-logo" src="logo.png" alt="RGP Live Sound &amp; Production" width="280" height="108">
         <p class="foot-blurb">Live event production for people who care what the room feels like at 11:47pm. Staging, audio, lighting, and the plan behind all of it.</p>
       </div>
       <div class="foot-col">
@@ -593,7 +596,7 @@
       </div>
     </div>
     <div class="foot-bottom">
-      <div class="mono">© 2026 BLACKOUT PRODUCTION CO. ALL RIGHTS RESERVED.</div>
+      <div class="mono">© 2026 RGP LIVE SOUND &amp; PRODUCTION. ALL RIGHTS RESERVED.</div>
       <div class="mono">MADE IN THE DARK ✦ RUN IN THE LIGHT</div>
     </div>
   </div>
