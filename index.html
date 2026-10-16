@@ -186,6 +186,11 @@
   .member:hover .member-photo img{filter:grayscale(0);transform:scale(1.05)}
   .member-photo::after{content:"";position:absolute;inset:0;border-radius:50%;box-shadow:inset 0 0 0 0 var(--red);transition:box-shadow .35s}
   .member:hover .member-photo::after{box-shadow:inset 0 0 0 4px var(--red)}
+  /* Touch screens can't hover: color the photo while it sits in the middle of the screen */
+  @media (hover:none){
+    .member.in-view .member-photo img{filter:grayscale(0);transform:scale(1.05)}
+    .member.in-view .member-photo::after{box-shadow:inset 0 0 0 4px var(--red)}
+  }
   .member-name{font-family:'Anton',sans-serif;font-size:clamp(20px,2.2vw,26px);text-transform:uppercase;line-height:1;margin-top:22px}
   .member-role{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--red);margin-top:8px}
   .member-bio{font-size:14px;color:var(--muted-light);line-height:1.55;margin-top:14px;max-width:30ch;margin-left:auto;margin-right:auto}
@@ -603,6 +608,14 @@
 </footer>
 
 <script>
+  // crew photos: on touch screens, color whichever photo is in the middle band of the screen
+  if (window.matchMedia('(hover: none)').matches && 'IntersectionObserver' in window) {
+    const crewIO = new IntersectionObserver((entries)=>{
+      entries.forEach(e=> e.target.classList.toggle('in-view', e.isIntersecting));
+    },{rootMargin:'-35% 0px -35% 0px'});
+    document.querySelectorAll('.member').forEach(el=>crewIO.observe(el));
+  }
+
   // scroll reveal
   const io = new IntersectionObserver((entries)=>{
     entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
